@@ -38,6 +38,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
 
         self.image = pygame.image.load("./images/tyler1lol.png")
+        self.image = pygame.transform.scale(self.image, (110, 87))
 
         self.rect = self.image.get_rect()
 
@@ -52,23 +53,24 @@ class Enemy(pygame.sprite.Sprite):
         super().__init__()
 
         self.image = pygame.image.load("./images/diamond.png")
+        self.image = pygame.transform.scale(self.image, (150, 150))
         self.rect = self.image.get_rect()
 
         self.x, self.y = (
-            random.randrange(0, WIDTH),
-            random.randrange(0, HEIGHT)
+            random.randrange(1, WIDTH),
+            random.randrange(1, HEIGHT)
         )
 
         self.vel_x = 3
         self.vel_y = 3
 
     def update(self):
-        self.y += self.vel_y
-        self.x += self.vel_x
+        self.rect.x += self.vel_x
+        self.rect.y += self.vel_y
 
-        if self.x + self.width > WIDTH or self.x < 0:
+        if self.rect.right > WIDTH or self.rect.left < 0:
             self.vel_x *= -1
-        if self.y + self.height > HEIGHT or self.y < 0:
+        if self.rect.y + 250 > HEIGHT or self.rect.y + 75 < 0:
             self.vel_y *= -1
 
 
@@ -89,7 +91,6 @@ def main():
     sprite_group = pygame.sprite.Group()
     jewels_group = pygame.sprite.Group()
     enemy_group = pygame.sprite.Group()
-
     # Jewel creation
     for i in range(NUM_JEWELS):
         jewel = Jewel()
@@ -109,7 +110,6 @@ def main():
         sprite_group.add(enemy)
         enemy_group.add(enemy)
 
-
     # ----- MAIN LOOP
     while not done:
         # -- Event Handler
@@ -125,6 +125,11 @@ def main():
         for jewel in jewels_collected:
             score += 1
             print(score)
+
+        player_collide = pygame.sprite.spritecollide(player, enemy_group, True)
+
+        if player_collide:
+            done = True
         # ----- DRAW
         screen.fill(BLACK)
         sprite_group.draw(screen)
@@ -132,6 +137,8 @@ def main():
         # ----- UPDATE
         for enemy in enemy_group:
             enemy.update()
+
+
         pygame.display.flip()
         clock.tick(60)
 
